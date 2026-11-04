@@ -8,8 +8,9 @@ Uma interface responsiva para descobrir músicas, artistas e produtores de difer
 - Busca de músicas e artistas no catálogo internacional
 - Filtros por estilo e perfis de artistas encontrados no catálogo
 - Seleção editorial de produtores internacionais para conhecer
-- Player de prévias com progresso, volume, aleatório, repetição e navegação
-- Faixas curtidas salvas no navegador
+- Player de prévias com progresso, volume, reprodução aleatória, repetição e fila
+- Faixas curtidas e playlists salvas no navegador
+- Histórico de reprodução recente e fila atual
 - Layout responsivo para desktop e dispositivos móveis
 
 ## Executar localmente
