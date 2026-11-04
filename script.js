@@ -28,9 +28,11 @@ const trackList = document.querySelector("#trackList");
 const playButton = document.querySelector("#playButton");
 const progress = document.querySelector("#progress");
 const searchInput = document.querySelector("#searchInput");
+const musicFolderInput = document.querySelector("#musicFolderInput");
 const $ = selector => document.querySelector(selector);
 const state = {
   tracks: [],
+  localTracks: [],
   visibleTracks: [],
   queue: [],
   favorites: new Set(),
@@ -116,6 +118,31 @@ function normalizeTrack(track, vibe = "") {
     preview: safeUrl(track.previewUrl || ""),
     store: safeUrl(track.trackViewUrl || ""),
     duration: Number(track.trackTimeMillis) > 0 ? Math.floor(track.trackTimeMillis / 1000) : 0
+  };
+}
+
+function normalizeLocalTrack(file, preview) {
+  const fileName = file.name.replace(/\.(mp3|m4a)$/i, "");
+  const cleanedName = fileName
+    .replace(/^(?:freemp3\.plus-|X2Download\.com\s*-\s*)/i, "")
+    .replace(/^\d+\s+/, "")
+    .trim();
+  const titleParts = cleanedName.split(/\s+-\s+/, 2);
+  const hasArtist = titleParts.length === 2 && titleParts.every(Boolean);
+  const relativePath = file.webkitRelativePath || file.name;
+
+  return {
+    id: `local:${relativePath}`,
+    title: hasArtist ? titleParts[1] : cleanedName || fileName,
+    artist: hasArtist ? titleParts[0] : "RAFAMIX",
+    album: "RAFAMIX",
+    genre: "Música local",
+    vibe: "Sua coleção",
+    artwork: "",
+    preview,
+    store: "",
+    duration: 0,
+    local: true
   };
 }
 
@@ -326,16 +353,19 @@ async function loadGlobalCatalog() {
     return songs.map(song => normalizeTrack(song, search.vibe));
   }));
   const successful = responses.filter(result => result.status === "fulfilled");
-  state.tracks = uniqueTracks(successful.flatMap(result => result.value));
+  const onlineTracks = uniqueTracks(successful.flatMap(result => result.value));
+  state.tracks = uniqueTracks([...state.localTracks, ...onlineTracks]);
   state.visibleTracks = state.tracks;
   state.queue = state.tracks;
   mergeSavedTracks();
 
   if (state.tracks.length) {
     const failed = responses.length - successful.length;
-    setCatalogStatus(failed
-      ? `${state.tracks.length} descobertas · ${failed} região(ões) temporariamente indisponível(is).`
-      : `${state.tracks.length} descobertas de vários países · prévias quando disponíveis.`);
+    const localStatus = state.localTracks.length ? `${state.localTracks.length} faixas locais · ` : "";
+    setCatalogStatus(onlineTracks.length
+      ? `${localStatus}${onlineTracks.length} descobertas online${failed ? ` · ${failed} região(ões) temporariamente indisponível(is).` : " · prévias quando disponíveis."}`
+      : `${state.localTracks.length} músicas da pasta local · ${failed === responses.length ? "catálogo online indisponível." : "sem descobertas online."}`,
+    !onlineTracks.length && failed === responses.length);
     renderQuickGrid();
     renderFeature(state.tracks[0]);
     renderAlbumShelf(state.tracks);
@@ -355,11 +385,63 @@ async function loadGlobalCatalog() {
   renderQueue();
 }
 
+function importLocalMusic(files) {
+  const musicFiles = Array.from(files).filter(file => /\.(mp3|m4a)$/i.test(file.name));
+  if (!musicFiles.length) {
+    setCatalogStatus("A pasta selecionada não contém arquivos MP3 ou M4A.", true);
+    toast("Selecione uma pasta com arquivos MP3 ou M4A.");
+    return;
+  }
+
+  if (state.currentId && state.currentId.startsWith("local:")) {
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+    state.currentId = null;
+    $("#playerTitle").textContent = "Escolha uma música";
+    $("#playerArtist").textContent = "Sua próxima descoberta começa aqui";
+    $("#playerCover").innerHTML = `<i data-lucide="music-2"></i>`;
+    playButton.disabled = true;
+  }
+  for (const track of state.localTracks) {
+    if (track.preview.startsWith("blob:")) URL.revokeObjectURL(track.preview);
+    state.savedTracks.delete(track.id);
+  }
+
+  state.localTracks = musicFiles
+    .sort((left, right) => left.name.localeCompare(right.name, "pt-BR", { sensitivity: "base" }))
+    .map(file => normalizeLocalTrack(file, URL.createObjectURL(file)));
+  state.tracks = uniqueTracks([...state.localTracks, ...state.tracks.filter(track => !track.local)]);
+  state.visibleTracks = state.tracks;
+  state.queue = state.tracks;
+  state.currentView = "home";
+  state.activePlaylist = null;
+  state.showAll = false;
+  searchInput.value = "";
+  state.searchSequence++;
+  clearTimeout(state.searchTimer);
+  $("#clearSearch").hidden = true;
+  $("#tracksHeading").textContent = "Sua pasta de músicas";
+  $("#tracksEyebrow").textContent = "SUA COLEÇÃO LOCAL";
+  setCatalogStatus(`${state.localTracks.length} músicas adicionadas · reprodução completa neste dispositivo.`);
+  mergeSavedTracks();
+  renderQuickGrid();
+  renderFeature(state.localTracks[0]);
+  renderAlbumShelf(state.tracks);
+  renderRecentShelf();
+  renderTracks();
+  renderArtists();
+  renderLibrary();
+  updateFavoriteCount();
+  renderQueue();
+  toast(`${state.localTracks.length} músicas adicionadas ao catálogo.`);
+}
+
 function mergeSavedTracks() {
   for (const track of state.tracks) {
     if (state.favorites.has(track.id)) state.savedTracks.set(track.id, track);
   }
-  const validFavorites = [...state.favorites].filter(id => state.savedTracks.has(id));
+  const validFavorites = [...state.favorites].filter(id => id.startsWith("local:") || state.savedTracks.has(id));
   state.favorites = new Set(validFavorites);
   writeStorage("flashmusic:favorites", [...state.favorites]);
   writeStorage("flashmusic:saved-tracks", [...state.savedTracks.values()]);
@@ -372,7 +454,9 @@ async function searchCatalog(query, sequence) {
     state.visibleTracks = state.tracks;
     $("#tracksHeading").textContent = "Em alta pelo mundo";
     $("#tracksEyebrow").textContent = "ARTISTAS DE TODO O PLANETA";
-    setCatalogStatus(`${state.tracks.length} descobertas de vários países · prévias quando disponíveis.`);
+    setCatalogStatus(state.localTracks.length
+      ? `${state.localTracks.length} músicas locais + descobertas de vários países · prévias quando disponíveis.`
+      : `${state.tracks.length} descobertas de vários países · prévias quando disponíveis.`);
     renderTracks();
     renderArtists();
     renderProducers();
@@ -430,7 +514,7 @@ function setPlayerTrack(track, autoplay = true, queue = state.visibleTracks) {
   audio.removeAttribute("src");
   audio.load();
   $("#playerTitle").textContent = track.title;
-  $("#playerArtist").textContent = track.preview ? track.artist : `${track.artist} · prévia indisponível`;
+  $("#playerArtist").textContent = track.preview ? track.artist : `${track.artist} · áudio indisponível`;
   $("#playerCover").innerHTML = albumImage(track, "player-cover-image");
   $("#duration").textContent = track.duration ? formatTime(track.duration) : "0:00";
   $("#currentTime").textContent = "0:00";
@@ -443,7 +527,7 @@ function setPlayerTrack(track, autoplay = true, queue = state.visibleTracks) {
   renderIcons();
   if (!track.preview) {
     setPlayIcon();
-    toast("Esta faixa não tem prévia de áudio disponível.");
+    toast("O áudio desta faixa não está disponível.");
     return;
   }
   if (autoplay) {
@@ -458,6 +542,7 @@ function setPlayerTrack(track, autoplay = true, queue = state.visibleTracks) {
 
 function setPlayIcon() {
   playButton.innerHTML = `<i data-lucide="${audio.paused ? "play" : "pause"}"></i>`;
+  playButton.setAttribute("aria-label", audio.paused ? "Reproduzir música" : "Pausar música");
   renderIcons();
 }
 
@@ -719,6 +804,15 @@ $("#repeatButton").addEventListener("click", event => {
 });
 audio.addEventListener("play", setPlayIcon);
 audio.addEventListener("pause", setPlayIcon);
+audio.addEventListener("loadedmetadata", () => {
+  if (!Number.isFinite(audio.duration)) return;
+  $("#duration").textContent = formatTime(audio.duration);
+  const track = currentTrack();
+  if (track?.local) {
+    track.duration = Math.floor(audio.duration);
+    renderTracks();
+  }
+});
 audio.addEventListener("timeupdate", () => {
   if (!audio.duration) return;
   progress.value = String(audio.currentTime / audio.duration * 100);
@@ -727,7 +821,7 @@ audio.addEventListener("timeupdate", () => {
 });
 audio.addEventListener("ended", () => moveTrack(1));
 audio.addEventListener("error", () => {
-  if (state.currentId) toast("Não foi possível carregar esta prévia de áudio.");
+  if (state.currentId) toast("Não foi possível carregar o áudio desta faixa.");
 });
 progress.addEventListener("input", () => {
   if (audio.duration) audio.currentTime = Number(progress.value) / 100 * audio.duration;
@@ -738,6 +832,17 @@ audio.volume = 0.7;
 $("#loadMore").addEventListener("click", () => {
   state.showAll = !state.showAll;
   renderTracks();
+});
+$("#importMusic").addEventListener("click", () => {
+  if (!("webkitdirectory" in musicFolderInput)) {
+    toast("Use um navegador que permita selecionar pastas, como Chrome ou Edge.");
+    return;
+  }
+  musicFolderInput.click();
+});
+musicFolderInput.addEventListener("change", () => {
+  if (musicFolderInput.files.length) importLocalMusic(musicFolderInput.files);
+  musicFolderInput.value = "";
 });
 $("#seeAllTracks").addEventListener("click", () => {
   state.showAll = true;
@@ -865,7 +970,9 @@ function hydrateLibrary() {
   const savedRecent = readStorage("flashmusic:recent", []);
   if (Array.isArray(savedTracks)) {
     for (const track of savedTracks) {
-      if (track?.id) state.savedTracks.set(String(track.id), { ...track, id: String(track.id) });
+      if (track?.id && !String(track.id).startsWith("local:")) {
+        state.savedTracks.set(String(track.id), { ...track, id: String(track.id) });
+      }
     }
   }
   if (Array.isArray(savedFavorites)) state.favorites = new Set(savedFavorites.map(String));

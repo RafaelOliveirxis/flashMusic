@@ -129,8 +129,12 @@
         <section class="shelf-section" id="tracks">
           <div class="section-heading">
             <div><p class="eyebrow" id="tracksEyebrow">ARTISTAS DE TODO O PLANETA</p><h2 id="tracksHeading">Em alta pelo mundo</h2></div>
-            <button class="text-link" id="seeAllTracks">Mostrar tudo <i data-lucide="arrow-right"></i></button>
+            <div class="catalog-actions">
+              <button class="text-link" id="importMusic">Adicionar pasta de músicas <i data-lucide="folder-plus"></i></button>
+              <button class="text-link" id="seeAllTracks">Mostrar tudo <i data-lucide="arrow-right"></i></button>
+            </div>
           </div>
+          <input id="musicFolderInput" type="file" accept=".mp3,.m4a,audio/mpeg,audio/mp4" webkitdirectory multiple hidden>
           <p class="section-description" id="catalogStatus" role="status">Preparando descobertas para você…</p>
           <div class="track-list">
             <div class="track-header"><span>#</span><span>TÍTULO</span><span>ÁLBUM</span><span><i data-lucide="clock-3"></i></span><span></span></div>
@@ -157,7 +161,7 @@
     </main>
   </div>
 
-  <section class="player-bar" aria-label="Player de prévias musicais">
+  <section class="player-bar" aria-label="Player de música">
     <div class="now-playing">
       <div class="mini-cover" id="playerCover"><i data-lucide="music-2"></i></div>
       <div class="now-meta"><strong id="playerTitle">Escolha uma música</strong><span id="playerArtist">Sua próxima descoberta começa aqui</span></div>
@@ -167,7 +171,7 @@
       <div class="player-controls">
         <button class="player-icon" id="shuffleButton" aria-label="Reprodução aleatória"><i data-lucide="shuffle"></i></button>
         <button class="player-icon" id="backButton" aria-label="Faixa anterior"><i data-lucide="skip-back"></i></button>
-        <button class="play-button" id="playButton" aria-label="Reproduzir prévia" disabled><i data-lucide="play"></i></button>
+        <button class="play-button" id="playButton" aria-label="Reproduzir música" disabled><i data-lucide="play"></i></button>
         <button class="player-icon" id="forwardButton" aria-label="Próxima faixa"><i data-lucide="skip-forward"></i></button>
         <button class="player-icon" id="repeatButton" aria-label="Repetir prévia"><i data-lucide="repeat"></i></button>
       </div>

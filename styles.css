@@ -129,6 +129,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .section-heading .eyebrow { margin-bottom: 4px; font-size: 8px; }
 .section-heading h2 { margin: 0; font: 600 20px var(--display); letter-spacing: -.5px; }
 .section-heading h2:hover { text-decoration: underline; text-decoration-color: #bcb4c4; text-underline-offset: 4px; }
+.catalog-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 16px; }
 .shelf-controls { display: flex; gap: 4px; }
 .shelf-controls .icon-button { width: 28px; height: 28px; background: #ffffff0a; }
 .shelf-controls .icon-button svg { width: 17px; }
