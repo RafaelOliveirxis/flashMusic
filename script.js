@@ -11,7 +11,16 @@ const seedSearches = [
   { term: "indian pop", country: "IN", vibe: "Indian" },
   { term: "reggaeton", country: "MX", vibe: "Latin" },
   { term: "techno", country: "DE", vibe: "Electronic" },
-  { term: "indie rock", country: "AU", vibe: "Indie" }
+  { term: "indie rock", country: "AU", vibe: "Indie" },
+  { term: "dance pop hits", country: "CA", vibe: "Pop" },
+  { term: "uk garage", country: "GB", vibe: "Electronic" },
+  { term: "afro house", country: "ZA", vibe: "African sounds" },
+  { term: "latin urban hits", country: "CO", vibe: "Latin" },
+  { term: "thai pop", country: "TH", vibe: "Pop" },
+  { term: "french rap", country: "FR", vibe: "Hip-hop" },
+  { term: "german pop", country: "DE", vibe: "Pop" },
+  { term: "indonesian pop", country: "ID", vibe: "Pop" },
+  { term: "australian indie", country: "AU", vibe: "Indie" }
 ];
 
 const producers = [
@@ -20,7 +29,21 @@ const producers = [
   { name: "Kaytranada", origin: "Haiti / Canadá · Eletrônica", initials: "KA" },
   { name: "Pheelz", origin: "Nigéria · Afrobeats", initials: "PH" },
   { name: "Finneas", origin: "EUA · Pop alternativo", initials: "FI" },
-  { name: "Nucleya", origin: "Índia · Eletrônica", initials: "NU" }
+  { name: "Nucleya", origin: "Índia · Eletrônica", initials: "NU" },
+  { name: "Max Martin", origin: "Suécia · Pop", initials: "MM" },
+  { name: "Jack Antonoff", origin: "EUA · Pop alternativo", initials: "JA" },
+  { name: "Mark Ronson", origin: "Reino Unido · Pop e funk", initials: "MR" },
+  { name: "Rick Rubin", origin: "EUA · Hip-hop e rock", initials: "RR" },
+  { name: "Pharrell Williams", origin: "EUA · Pop e hip-hop", initials: "PW" },
+  { name: "Skrillex", origin: "EUA · Eletrônica", initials: "SK" },
+  { name: "Diplo", origin: "EUA · Eletrônica e pop", initials: "DI" },
+  { name: "David Guetta", origin: "França · Eletrônica", initials: "DG" },
+  { name: "Sounwave", origin: "EUA · Hip-hop", initials: "SO" },
+  { name: "El Guincho", origin: "Espanha · Pop alternativo", initials: "EG" },
+  { name: "Savan Kotecha", origin: "Suécia / EUA · Pop", initials: "SK" },
+  { name: "Cirkut", origin: "Canadá · Pop", initials: "CI" },
+  { name: "Benny Blanco", origin: "EUA · Pop", initials: "BB" },
+  { name: "DJ Khaled", origin: "EUA · Hip-hop", initials: "DK" }
 ];
 
 const audio = document.querySelector("#audio");
@@ -122,20 +145,19 @@ function normalizeTrack(track, vibe = "") {
 }
 
 function normalizeLocalTrack(file, preview) {
-  const fileName = file.name.replace(/\.(mp3|m4a)$/i, "");
+  const fileName = file.name.replace(/\.(mp3|m4a|wav)$/i, "");
   const cleanedName = fileName
     .replace(/^(?:freemp3\.plus-|X2Download\.com\s*-\s*)/i, "")
-    .replace(/^\d+\s+/, "")
     .trim();
-  const titleParts = cleanedName.split(/\s+-\s+/, 2);
-  const hasArtist = titleParts.length === 2 && titleParts.every(Boolean);
   const relativePath = file.webkitRelativePath || file.name;
+  const folderName = relativePath.split("/").slice(-2, -1)[0];
+  const title = cleanedName.replace(/^\d+\s*-\s*/, "").trim();
 
   return {
     id: `local:${relativePath}`,
-    title: hasArtist ? titleParts[1] : cleanedName || fileName,
-    artist: hasArtist ? titleParts[0] : "RAFAMIX",
-    album: "RAFAMIX",
+    title: title || cleanedName || fileName,
+    artist: folderName || "Música local",
+    album: folderName || "Músicas locais",
     genre: "Música local",
     vibe: "Sua coleção",
     artwork: "",
@@ -270,9 +292,9 @@ function renderArtists(tracks = state.visibleTracks) {
   }
   const queues = [...groups.values()].map(group => [...group.values()]);
   const artists = [];
-  while (artists.length < 16 && queues.some(queue => queue.length)) {
+  while (artists.length < 32 && queues.some(queue => queue.length)) {
     for (const queue of queues) {
-      if (queue.length && artists.length < 16) artists.push(queue.shift());
+      if (queue.length && artists.length < 32) artists.push(queue.shift());
     }
   }
   $("#artistShelf").innerHTML = artists.map(track =>
@@ -386,31 +408,28 @@ async function loadGlobalCatalog() {
 }
 
 function importLocalMusic(files) {
-  const musicFiles = Array.from(files).filter(file => /\.(mp3|m4a)$/i.test(file.name));
+  const musicFiles = Array.from(files).filter(file => /\.(mp3|m4a|wav)$/i.test(file.name));
   if (!musicFiles.length) {
-    setCatalogStatus("A pasta selecionada não contém arquivos MP3 ou M4A.", true);
-    toast("Selecione uma pasta com arquivos MP3 ou M4A.");
+    setCatalogStatus("A pasta selecionada não contém arquivos MP3, M4A ou WAV.", true);
+    toast("Selecione uma pasta com arquivos MP3, M4A ou WAV.");
     return;
   }
 
-  if (state.currentId && state.currentId.startsWith("local:")) {
-    audio.pause();
-    audio.removeAttribute("src");
-    audio.load();
-    state.currentId = null;
-    $("#playerTitle").textContent = "Escolha uma música";
-    $("#playerArtist").textContent = "Sua próxima descoberta começa aqui";
-    $("#playerCover").innerHTML = `<i data-lucide="music-2"></i>`;
-    playButton.disabled = true;
-  }
-  for (const track of state.localTracks) {
-    if (track.preview.startsWith("blob:")) URL.revokeObjectURL(track.preview);
-    state.savedTracks.delete(track.id);
+  const existingIds = new Set(state.localTracks.map(track => track.id));
+  const addedTracks = musicFiles
+    .map(file => normalizeLocalTrack(file, URL.createObjectURL(file)))
+    .filter(track => {
+      if (!existingIds.has(track.id)) return true;
+      URL.revokeObjectURL(track.preview);
+      return false;
+    });
+  if (!addedTracks.length) {
+    setCatalogStatus(`${state.localTracks.length} músicas locais já estão no catálogo.`);
+    toast("As músicas desta pasta já foram adicionadas.");
+    return;
   }
 
-  state.localTracks = musicFiles
-    .sort((left, right) => left.name.localeCompare(right.name, "pt-BR", { sensitivity: "base" }))
-    .map(file => normalizeLocalTrack(file, URL.createObjectURL(file)));
+  state.localTracks = uniqueTracks([...state.localTracks, ...addedTracks]);
   state.tracks = uniqueTracks([...state.localTracks, ...state.tracks.filter(track => !track.local)]);
   state.visibleTracks = state.tracks;
   state.queue = state.tracks;
@@ -423,7 +442,7 @@ function importLocalMusic(files) {
   $("#clearSearch").hidden = true;
   $("#tracksHeading").textContent = "Sua pasta de músicas";
   $("#tracksEyebrow").textContent = "SUA COLEÇÃO LOCAL";
-  setCatalogStatus(`${state.localTracks.length} músicas adicionadas · reprodução completa neste dispositivo.`);
+  setCatalogStatus(`${state.localTracks.length} músicas locais adicionadas · reprodução completa neste dispositivo.`);
   mergeSavedTracks();
   renderQuickGrid();
   renderFeature(state.localTracks[0]);
@@ -434,7 +453,7 @@ function importLocalMusic(files) {
   renderLibrary();
   updateFavoriteCount();
   renderQueue();
-  toast(`${state.localTracks.length} músicas adicionadas ao catálogo.`);
+  toast(`${addedTracks.length} novas músicas adicionadas ao catálogo (${state.localTracks.length} locais).`);
 }
 
 function mergeSavedTracks() {
@@ -821,7 +840,10 @@ audio.addEventListener("timeupdate", () => {
 });
 audio.addEventListener("ended", () => moveTrack(1));
 audio.addEventListener("error", () => {
-  if (state.currentId) toast("Não foi possível carregar o áudio desta faixa.");
+  if (!state.currentId) return;
+  toast(currentTrack()?.local
+    ? "Não foi possível carregar o áudio desta faixa."
+    : "A prévia online não é compatível com este navegador. Importe um MP3, M4A ou WAV para ouvir a faixa completa.");
 });
 progress.addEventListener("input", () => {
   if (audio.duration) audio.currentTime = Number(progress.value) / 100 * audio.duration;
