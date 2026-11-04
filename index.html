@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#090b0a">
-  <meta name="description" content="Descubra músicas, artistas e produtores do mundo todo na FlashMusic.">
-  <title>FlashMusic — música do mundo todo</title>
+  <meta name="theme-color" content="#100e14">
+  <meta name="description" content="Descubra seu próximo som. Música do mundo todo na FlashMusic.">
+  <title>FlashMusic — seu mundo, seu som</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -20,110 +20,147 @@
         <span class="brand-mark"><i data-lucide="audio-lines"></i></span>
         <span>flash<span class="brand-light">music</span></span>
       </a>
-      <span class="side-label">MENU</span>
       <nav class="main-nav" aria-label="Navegação principal">
-        <a class="nav-link active" href="#home"><i data-lucide="house"></i>Início</a>
-        <a class="nav-link" href="#tracks"><i data-lucide="compass"></i>Descobrir</a>
-        <a class="nav-link" href="#artists"><i data-lucide="mic-2"></i>Artistas</a>
-        <a class="nav-link" href="#producers"><i data-lucide="sliders-horizontal"></i>Produtores</a>
+        <a class="nav-link active" href="#home" data-nav="home"><i data-lucide="house"></i><span>Início</span></a>
+        <a class="nav-link" href="#discover" data-nav="discover"><i data-lucide="compass"></i><span>Descobrir</span></a>
+        <a class="nav-link" href="#search" id="searchNav"><i data-lucide="search"></i><span>Buscar</span></a>
       </nav>
-      <div class="side-label collection-label">SUA MÚSICA <button class="icon-button tiny" id="createPlaylist" aria-label="Criar playlist"><i data-lucide="plus"></i></button></div>
+      <div class="library-heading">
+        <a href="#tracks" class="library-title" data-nav="library"><i data-lucide="library"></i><span>Sua biblioteca</span></a>
+        <button class="icon-button" id="createPlaylist" aria-label="Criar playlist" title="Criar playlist"><i data-lucide="plus"></i></button>
+      </div>
+      <div class="library-tools">
+        <button class="library-chip active" data-library-filter="all">Tudo</button>
+        <button class="library-chip" data-library-filter="playlist">Playlists</button>
+        <button class="library-chip" data-library-filter="artist">Artistas</button>
+      </div>
       <div class="playlist-links" id="playlistLinks">
-        <a href="#tracks" id="favoritesLink"><span class="playlist-dot pink"></span>Faixas curtidas <span class="favorite-count" id="favoriteCount">0</span></a>
-        <a href="#tracks"><span class="playlist-dot green"></span>Novos sons</a>
+        <button class="library-item liked-link" id="favoritesLink">
+          <span class="liked-cover"><i data-lucide="heart"></i></span>
+          <span class="library-item-copy"><strong>Músicas curtidas</strong><small id="favoriteCount">0 músicas</small></span>
+        </button>
+        <div class="library-loading">Suas playlists aparecem aqui.</div>
       </div>
       <div class="sidebar-bottom">
-        <div class="sidebar-note">
-          <i data-lucide="globe-2"></i>
-          <strong>Um mundo de música.</strong>
-          <p>Explore faixas de diferentes países e cenas musicais.</p>
+        <div class="sidebar-callout">
+          <span class="callout-icon"><i data-lucide="globe-2"></i></span>
+          <div><strong>Feito para descobrir.</strong><p>Artistas e sons de todo o planeta.</p></div>
+          <a href="#producers" aria-label="Conheça os produtores"><i data-lucide="arrow-up-right"></i></a>
         </div>
-        <div class="profile-mini"><div class="avatar">F</div><div><strong>FlashMusic</strong><span>Seu espaço musical</span></div></div>
+        <a class="sidebar-footer-link" href="https://www.apple.com/legal/internet-services/itunes/" target="_blank" rel="noreferrer">Sobre as prévias de áudio ↗</a>
       </div>
     </aside>
 
     <main class="main-content" id="home">
       <header class="topbar">
-        <button class="icon-button mobile-menu" id="menuToggle" aria-label="Abrir menu"><i data-lucide="menu"></i></button>
-        <div class="breadcrumbs"><span>FlashMusic</span><i data-lucide="chevron-right"></i><strong>Descobrir</strong></div>
-        <label class="search-box"><i data-lucide="search"></i><input id="searchInput" type="search" placeholder="Música, artista ou produtor" autocomplete="off" aria-label="Buscar músicas e artistas"><kbd>⌘ K</kbd></label>
-        <a class="top-avatar" href="#producers" aria-label="Conheça os produtores">FM</a>
+        <button class="icon-button mobile-menu" id="menuToggle" aria-label="Abrir biblioteca"><i data-lucide="menu"></i></button>
+        <div class="history-controls">
+          <button class="icon-button history-button" id="backPage" aria-label="Voltar"><i data-lucide="chevron-left"></i></button>
+          <button class="icon-button history-button" id="forwardPage" aria-label="Avançar"><i data-lucide="chevron-right"></i></button>
+        </div>
+        <label class="search-box" id="search">
+          <i data-lucide="search"></i>
+          <input id="searchInput" type="search" placeholder="O que você quer ouvir?" autocomplete="off" aria-label="Buscar músicas, artistas ou produtores">
+          <kbd>⌘ K</kbd>
+          <button class="search-clear" id="clearSearch" aria-label="Limpar busca" hidden><i data-lucide="x"></i></button>
+        </label>
+        <button class="profile-button" id="profileButton" aria-label="Seu perfil">F</button>
       </header>
 
-      <section class="welcome-row">
-        <div>
-          <div class="eyebrow"><span class="live-dot"></span> SONS DE TODOS OS CANTOS</div>
-          <h1>Seu próximo som<br>vem de <span>qualquer lugar.</span></h1>
-          <p>Uma janela para artistas, ritmos e cenas do mundo todo.</p>
-        </div>
-        <div class="welcome-stamp" aria-hidden="true"><i data-lucide="globe-2"></i><span>PLAY<br>EVERYWHERE</span></div>
-      </section>
+      <div class="page-content">
+        <section class="greeting" id="greeting">
+          <p class="eyebrow"><span class="live-dot"></span> SEU ESPAÇO MUSICAL</p>
+          <h1 id="greetingTitle">Boa noite</h1>
+        </section>
 
-      <section class="hero-banner">
-        <div class="hero-copy">
-          <span class="tag"><i data-lucide="earth"></i> A CENA É GLOBAL</span>
-          <h2>Do seu bairro<br>ao <em>outro lado do mundo.</em></h2>
-          <p>Afrobeats, pop, K-pop, música latina e muito mais — tudo começa com uma descoberta.</p>
-          <a class="primary-button" href="#tracks"><i data-lucide="play"></i>Explorar músicas</a>
-        </div>
-        <div class="hero-art" aria-hidden="true">
-          <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
-          <div class="hero-disc"><div class="disc-center"><i data-lucide="audio-lines"></i></div></div>
-          <span class="floating-note note-one">♫</span><span class="floating-note note-two">♪</span>
-          <span class="hero-caption">SOUND<br>WITHOUT<br>BORDERS</span>
-        </div>
-        <span class="hero-count">FM <strong>001</strong> / WORLDWIDE</span>
-      </section>
+        <section class="quick-grid" id="quickGrid" aria-label="Atalhos para ouvir">
+          <button class="quick-card quick-liked" id="quickLiked"><span class="quick-heart"><i data-lucide="heart"></i></span><strong>Músicas curtidas</strong><span class="quick-play"><i data-lucide="play"></i></span></button>
+        </section>
 
-      <section class="content-section" id="vibes">
-        <div class="section-heading"><div><span class="eyebrow">ESCOLHA SEU CAMINHO</span><h2>Explore por vibe</h2></div></div>
-        <div class="vibe-grid">
-          <button class="vibe-card vibe-pop" data-vibe="Pop"><span>01 / MAIN STAGE</span><strong>Global<br>pop</strong><i data-lucide="audio-waveform"></i></button>
-          <button class="vibe-card vibe-afro" data-vibe="African sounds"><span>02 / AFRICA</span><strong>African<br>sounds</strong><i data-lucide="sun"></i></button>
-          <button class="vibe-card vibe-kpop" data-vibe="K-pop"><span>03 / SEOUL</span><strong>K-pop<br>now</strong><i data-lucide="sparkles"></i></button>
-          <button class="vibe-card vibe-latin" data-vibe="Latin"><span>04 / LATIN AMERICA</span><strong>Ritmo<br>latino</strong><i data-lucide="flame"></i></button>
-          <button class="vibe-card vibe-electronic" data-vibe="Electronic"><span>05 / AFTER HOURS</span><strong>Electronic<br>pulse</strong><i data-lucide="radio-tower"></i></button>
-          <button class="vibe-card vibe-hiphop" data-vibe="Hip-hop"><span>06 / THE CULTURE</span><strong>Hip-hop<br>worldwide</strong><i data-lucide="mic-2"></i></button>
-          <button class="vibe-card vibe-jpop" data-vibe="J-pop"><span>07 / JAPAN</span><strong>J-pop<br>discoveries</strong><i data-lucide="flower-2"></i></button>
-          <button class="vibe-card vibe-indian" data-vibe="Indian"><span>08 / SOUTH ASIA</span><strong>Indian<br>spotlight</strong><i data-lucide="sparkles"></i></button>
-          <button class="vibe-card vibe-indie" data-vibe="Indie"><span>09 / DOWN UNDER</span><strong>Indie<br>horizons</strong><i data-lucide="mountain"></i></button>
-        </div>
-      </section>
+        <section class="feature-banner" id="featureBanner">
+          <div class="feature-cover" id="featureCover"><i data-lucide="music-2"></i></div>
+          <div class="feature-copy">
+            <span class="feature-label"><i data-lucide="sparkles"></i> SUA DESCOBERTA DO DIA</span>
+            <p class="feature-kicker">UM SOM NOVO TE ESPERA</p>
+            <h2 id="featureTitle">Música sem fronteiras.</h2>
+            <p class="feature-description" id="featureDescription">Descubra artistas e sons de todos os cantos do mundo.</p>
+            <div class="feature-actions">
+              <button class="primary-button" id="featurePlay"><i data-lucide="play"></i><span>Ouvir agora</span></button>
+              <button class="feature-secondary" id="featureLike" aria-label="Curtir seleção"><i data-lucide="heart"></i></button>
+            </div>
+          </div>
+          <span class="feature-orbit" aria-hidden="true"></span>
+        </section>
 
-      <section class="content-section" id="tracks">
-        <div class="section-heading">
-          <div><span class="eyebrow">DESCOBERTAS DE VÁRIOS MERCADOS</span><h2 id="tracksHeading">Em alta pelo mundo</h2></div>
-          <span class="catalog-count" id="catalogCount"></span>
-        </div>
-        <p class="section-description" id="catalogStatus" role="status">Buscando músicas em diferentes cenas musicais…</p>
-        <div class="track-list" id="trackList" aria-live="polite"></div>
-        <button class="secondary-button load-more" id="loadMore" hidden>Carregar mais músicas</button>
-      </section>
+        <section class="shelf-section" id="discover">
+          <div class="section-heading">
+            <div><p class="eyebrow">UMA VOLTA AO MUNDO EM 30 SEGUNDOS</p><h2>Descubra por vibe</h2></div>
+            <div class="shelf-controls"><button class="icon-button shelf-scroll" data-scroll="genres" data-direction="-1" aria-label="Rolar para a esquerda"><i data-lucide="chevron-left"></i></button><button class="icon-button shelf-scroll" data-scroll="genres" data-direction="1" aria-label="Rolar para a direita"><i data-lucide="chevron-right"></i></button></div>
+          </div>
+          <div class="genre-shelf" id="genreShelf">
+            <button class="genre-card genre-pop" data-vibe="Pop"><span>NO RADAR</span><strong>Pop<br>global</strong><i data-lucide="audio-waveform"></i></button>
+            <button class="genre-card genre-afro" data-vibe="African sounds"><span>AFRICA</span><strong>Afrobeats<br>& amapiano</strong><i data-lucide="sun"></i></button>
+            <button class="genre-card genre-kpop" data-vibe="K-pop"><span>SEOUL</span><strong>K-pop<br>now</strong><i data-lucide="sparkles"></i></button>
+            <button class="genre-card genre-latin" data-vibe="Latin"><span>LATIN AMERICA</span><strong>Ritmo<br>latino</strong><i data-lucide="flame"></i></button>
+            <button class="genre-card genre-electronic" data-vibe="Electronic"><span>AFTER HOURS</span><strong>Electronic<br>pulse</strong><i data-lucide="radio-tower"></i></button>
+            <button class="genre-card genre-hiphop" data-vibe="Hip-hop"><span>WORLDWIDE</span><strong>Hip-hop<br>culture</strong><i data-lucide="mic-2"></i></button>
+            <button class="genre-card genre-jpop" data-vibe="J-pop"><span>JAPAN</span><strong>J-pop<br>discoveries</strong><i data-lucide="flower-2"></i></button>
+            <button class="genre-card genre-indian" data-vibe="Indian"><span>SOUTH ASIA</span><strong>Indian<br>spotlight</strong><i data-lucide="sparkles"></i></button>
+            <button class="genre-card genre-indie" data-vibe="Indie"><span>DOWN UNDER</span><strong>Indie<br>horizons</strong><i data-lucide="mountain"></i></button>
+          </div>
+        </section>
 
-      <section class="content-section" id="artists">
-        <div class="section-heading"><div><span class="eyebrow">VOZES E CENAS</span><h2>Artistas para descobrir</h2></div></div>
-        <p class="section-description">Artistas encontrados no catálogo musical global.</p>
-        <div class="artist-grid" id="artistGrid"></div>
-      </section>
+        <section class="shelf-section" id="recentSection" hidden>
+          <div class="section-heading">
+            <div><p class="eyebrow">CONTINUE DE ONDE VOCÊ PAROU</p><h2>Tocados recentemente</h2></div>
+            <div class="shelf-controls"><button class="icon-button shelf-scroll" data-scroll="recentShelf" data-direction="-1" aria-label="Rolar para a esquerda"><i data-lucide="chevron-left"></i></button><button class="icon-button shelf-scroll" data-scroll="recentShelf" data-direction="1" aria-label="Rolar para a direita"><i data-lucide="chevron-right"></i></button></div>
+          </div>
+          <div class="album-shelf" id="recentShelf"></div>
+        </section>
 
-      <section class="content-section" id="producers">
-        <div class="section-heading"><div><span class="eyebrow">QUEM ESTÁ POR TRÁS DO SOM</span><h2>Produtores em destaque</h2></div></div>
-        <p class="section-description">Conheça produtores de diferentes países e cenas que ajudam a moldar a música atual.</p>
-        <div class="producer-grid" id="producerGrid"></div>
-      </section>
+        <section class="shelf-section" id="albumDiscoveries">
+          <div class="section-heading">
+            <div><p class="eyebrow">A GENTE ESCOLHEU PRA VOCÊ</p><h2>Descobertas para dar play</h2></div>
+            <div class="shelf-controls"><button class="icon-button shelf-scroll" data-scroll="albumShelf" data-direction="-1" aria-label="Rolar para a esquerda"><i data-lucide="chevron-left"></i></button><button class="icon-button shelf-scroll" data-scroll="albumShelf" data-direction="1" aria-label="Rolar para a direita"><i data-lucide="chevron-right"></i></button></div>
+          </div>
+          <div class="album-shelf" id="albumShelf"></div>
+        </section>
 
-      <footer class="footer">
-        <a class="brand footer-brand" href="#home"><span class="brand-mark"><i data-lucide="audio-lines"></i></span><span>flash<span class="brand-light">music</span></span></a>
-        <span>Catálogo e prévias fornecidos pela iTunes Store. © 2026 FlashMusic.</span>
-        <a href="https://www.apple.com/legal/internet-services/itunes/" target="_blank" rel="noreferrer">Sobre as prévias ↗</a>
-      </footer>
+        <section class="shelf-section" id="tracks">
+          <div class="section-heading">
+            <div><p class="eyebrow" id="tracksEyebrow">ARTISTAS DE TODO O PLANETA</p><h2 id="tracksHeading">Em alta pelo mundo</h2></div>
+            <button class="text-link" id="seeAllTracks">Mostrar tudo <i data-lucide="arrow-right"></i></button>
+          </div>
+          <p class="section-description" id="catalogStatus" role="status">Preparando descobertas para você…</p>
+          <div class="track-list">
+            <div class="track-header"><span>#</span><span>TÍTULO</span><span>ÁLBUM</span><span><i data-lucide="clock-3"></i></span><span></span></div>
+            <div id="trackList" aria-live="polite"></div>
+          </div>
+          <button class="secondary-button load-more" id="loadMore" hidden>Mostrar tudo</button>
+        </section>
+
+        <section class="shelf-section" id="artists">
+          <div class="section-heading">
+            <div><p class="eyebrow">DÊ UM ROSTO À MÚSICA</p><h2>Artistas para conhecer</h2></div>
+            <div class="shelf-controls"><button class="icon-button shelf-scroll" data-scroll="artistShelf" data-direction="-1" aria-label="Rolar para a esquerda"><i data-lucide="chevron-left"></i></button><button class="icon-button shelf-scroll" data-scroll="artistShelf" data-direction="1" aria-label="Rolar para a direita"><i data-lucide="chevron-right"></i></button></div>
+          </div>
+          <div class="artist-shelf" id="artistShelf"></div>
+        </section>
+
+        <section class="shelf-section" id="producers">
+          <div class="section-heading"><div><p class="eyebrow">A MÁGICA POR TRÁS DAS BATIDAS</p><h2>Produtores em destaque</h2></div></div>
+          <div class="producer-shelf" id="producerGrid"></div>
+        </section>
+
+        <footer class="footer"><span>FlashMusic · seu mundo, seu som.</span><span>Catálogo e prévias: iTunes Store · © 2026 FlashMusic</span></footer>
+      </div>
     </main>
   </div>
 
   <section class="player-bar" aria-label="Player de prévias musicais">
     <div class="now-playing">
       <div class="mini-cover" id="playerCover"><i data-lucide="music-2"></i></div>
-      <div class="now-meta"><strong id="playerTitle">Encontre uma nova música</strong><span id="playerArtist">Prévia de áudio quando disponível</span></div>
+      <div class="now-meta"><strong id="playerTitle">Escolha uma música</strong><span id="playerArtist">Sua próxima descoberta começa aqui</span></div>
       <button class="icon-button favorite-button" id="favoriteButton" aria-label="Curtir música"><i data-lucide="heart"></i></button>
     </div>
     <div class="player-center">
@@ -136,8 +173,25 @@
       </div>
       <div class="progress-row"><span id="currentTime">0:00</span><input type="range" id="progress" min="0" max="100" value="0" aria-label="Progresso da prévia"><span id="duration">0:00</span></div>
     </div>
-    <div class="player-extra"><i data-lucide="volume-2"></i><input type="range" id="volume" min="0" max="1" step="0.01" value="0.7" aria-label="Volume"></div>
+    <div class="player-extra">
+      <button class="player-icon queue-toggle" id="queueToggle" aria-label="Abrir fila"><i data-lucide="list-music"></i></button>
+      <i data-lucide="volume-2"></i><input type="range" id="volume" min="0" max="1" step="0.01" value="0.7" aria-label="Volume">
+    </div>
   </section>
+  <aside class="queue-panel" id="queuePanel" aria-label="Fila de reprodução" hidden>
+    <div class="queue-heading"><div><p class="eyebrow">PRÓXIMAS NA FILA</p><h2>Fila de reprodução</h2></div><button class="icon-button" id="closeQueue" aria-label="Fechar fila"><i data-lucide="x"></i></button></div>
+    <p class="queue-now-label">Tocando agora</p><div id="queueNow"></div>
+    <p class="queue-now-label next-label">A seguir</p><div id="queueList"></div>
+  </aside>
+  <dialog class="playlist-dialog" id="playlistDialog" aria-labelledby="playlistDialogTitle">
+    <form id="playlistForm">
+      <div class="dialog-heading"><div><p class="eyebrow">SUA MÚSICA, SUAS REGRAS</p><h2 id="playlistDialogTitle">Criar playlist</h2></div><button class="icon-button" id="closePlaylistDialog" type="button" aria-label="Fechar"><i data-lucide="x"></i></button></div>
+      <p class="dialog-description" id="playlistDialogDescription">Dê um nome à sua nova playlist.</p>
+      <label class="playlist-name-field" id="playlistNameField"><span>Nome da playlist</span><input id="playlistNameInput" type="text" maxlength="60" placeholder="Minha playlist" autocomplete="off"></label>
+      <div class="playlist-choices" id="playlistChoices" hidden></div>
+      <div class="dialog-actions"><button class="dialog-cancel" id="cancelPlaylistDialog" type="button">Cancelar</button><button class="dialog-submit" type="submit" id="playlistSubmit">Criar playlist</button></div>
+    </form>
+  </dialog>
   <audio id="audio" preload="none"></audio>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
